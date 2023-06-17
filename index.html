@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+    crossorigin=""/>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine@latest/dist/leaflet-routing-machine.css" />
+    <style>
+        body{
+            padding: 0%;
+margin:0%
+        }
+        #map { height: 100vh;
+        width: 100%;
+    }
+    </style>
+</head>
+<body>
+    <div id="map"></div>
+    
+</body>
+</html>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+crossorigin=""></script>
+<script src="https://unpkg.com/leaflet-routing-machine@latest/dist/leaflet-routing-machine.js"></script>
+<script src="./Point.js"></script>
+<script>
+    var map = L.map('map').setView([28.3949, 84.1240], 6.2);
+   
+var cycleosm=L.tileLayer('http://{s}.tile-cyclosm.openstreetmap.fr/cyclosm/{z}/{x}/{y}.png', {
+maxZoom: 19,
+});
+cycleosm.addTo(map);
+var Humanitarian=L.tileLayer('http://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png',{
+    maxZoom: 19,
+});
+Humanitarian.addTo(map);
+var osm=L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    maxZoom: 19,
+    attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+});
+osm.addTo(map);
+var myIcon = L.icon({
+    iconUrl: 'img/icon2.png',
+    iconSize:[40,40],
+});
+
+
+var marker=L.marker([28.3949, 84.1240],{icon: myIcon});
+marker.addTo(map);
+
+var popup = marker.bindPopup("<div class='grad'> <font color='red'><h1> <b><i>Nepal</h1></b></i></font>"+marker.getLatLng());
+popup.addTo(map);
+
+
+var point=L.geoJSON(point,
+{
+    onEachFeature:function(feature,layer){
+        layer.bindPopup('<b> <i> <font color=brown>'+feature.properties.store+ ', ' + feature.properties.address)
+    },
+    style: {
+        fillColor:'red', 
+    }
+}).addTo(map);
+if(!navigator.geolocation){
+console.log('Sorry Browswer doesnot support the geoserver');
+}
+else{
+navigator.geolocation.getCurrentPosition(getPosition);
+}
+function getPosition(position)
+{
+var lat=position.coords.latitude;
+var lng=position.coords.longitude;
+console.log(lat,lng)
+}
+/*map.on('click',function(e)
+{
+    console.log(e)
+    var posmarker=L.marker([e.latlng.lat,e.latlng.lng]).addTo(map);
+        L.Routing.control({
+            waypoints: [
+                L.latlng([28.2380,83.9956]),
+                L.latlng(e.latlng.lat, e.latlng.lng)]
+        }).addTo(map)
+})
+*/
+var myIcon1 = L.icon({
+    iconUrl: 'img/bike.png',
+    iconSize:[40,40],
+});
+map.on('click', function(e)
+{
+    console.log(e);
+    var marker=L.marker([e.latlng.lat,e.latlng.lng],{icon:myIcon1}).addTo(map);
+    L.Routing.control({
+  waypoints: [
+    L.latLng(27.700027300982768,85.33647892721973),
+    L.latLng(e.latlng.lat, e.latlng.lng)
+  ]
+}).on('routesfound', function(e)
+{
+    console.log(e);
+    e.routes[0].coordinates.forEach(function(coord,index) {
+        setTimeout(() =>{
+            marker.setLatLng([coord.lat,coord.lng])
+        },5*index);
+})
+})
+.addTo(map);
+})
+var baseMaps = {
+    "<span style='color: red'>Humanitarian</span>":Humanitarian,
+    "<span style='color: blue'>CycleOSM</span>":cycleosm, 
+    "<span style='color:green'>OpenStreetMap</span>": osm,
+     
+     
+};
+var overlayMaps={
+    "<font color='rgba(255, 99, 71, 0.4)'>My Office</font>":point
+}
+L.control.layers(baseMaps,overlayMaps,{ collapsed: false}).addTo(map);
+map.removeControl(point);
+</script>

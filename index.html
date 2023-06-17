@@ -8,18 +8,87 @@
     integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
     crossorigin=""/>
     <link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine@latest/dist/leaflet-routing-machine.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet.locatecontrol@0.79.0/dist/L.Control.Locate.min.css" />
+    <link rel="stylesheet" href="leaflet-locatecontrol-gh-pages/dist/L.Control.Locate.min.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet.locatecontrol@v0.79.0/dist/L.Control.Locate.min.css" />
+
+<script src="https://cdn.jsdelivr.net/npm/leaflet.locatecontrol@v0.74.0/dist/L.Control.Locate.min.js" charset="utf-8"></script>
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet.locatecontrol@0.74.4/dist/L.Control.Locate.min.css" />
+   
+
+<script src="https://cdn.jsdelivr.net/npm/leaflet.locatecontrol@0.79.0/dist/L.Control.Locate.min.js" charset="utf-8"></script>
+<script src="leaflet-locatecontrol-gh-pages/dist/L.Control.Locate.min.js"></script>
     <style>
         body{
             padding: 0%;
 margin:0%
         }
-        #map { height: 100vh;
+        #map { height: 90vh;
         width: 100%;
     }
     </style>
 </head>
 <body>
-    <div id="map"></div>
+    <div id="map" style="z-index: 1;">
+
+    </div>
+    <div class="legend">
+        <h1>Legend:</h1>
+        <div class="legend-item"><span class="legend-color" style="background-color: red;"></span>Police Station</div>
+        <div class="legend-item"><span class="legend-color" style="background-color: blue;"></span>Store</div> ;
+
+    </div>
+
+
+
+
+    <style>
+        .legend {
+            background-color: yellow;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-family: Arial, sans-serif;
+            font-size: 14px;
+            width: 10%;
+
+        
+            /* Adjust the gradient colors as needed */
+        }
+
+
+
+        .legend h4 {
+            margin: 0;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        .legend table {
+            margin-top: 10px;
+            width: 100%;
+        }
+
+        .legend table td {
+            padding: 5px;
+        }
+
+        .legend-color {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            margin-right: 5px;
+            vertical-align: middle;
+        }
+    </style>
+
+
+
+
+
     
 </body>
 </html>
@@ -27,14 +96,18 @@ margin:0%
 integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
 crossorigin=""></script>
 <script src="https://unpkg.com/leaflet-routing-machine@latest/dist/leaflet-routing-machine.js"></script>
-<script src="./Point.js"></script>
+<script src="leafletjs'/policestation.js"></script>
+<script src="leafletjs'/store1.js"></script>
+<script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/leaflet.locatecontrol@0.74.0/dist/L.Control.Locate.min.js" charset="utf-8"></script>
 <script>
-    var map = L.map('map').setView([28.3949, 84.1240], 6.2);
-   
+    var map = L.map('map').setView([28.2037, 83.9843], 12);
+    
 var cycleosm=L.tileLayer('http://{s}.tile-cyclosm.openstreetmap.fr/cyclosm/{z}/{x}/{y}.png', {
 maxZoom: 19,
 });
 cycleosm.addTo(map);
+
 var Humanitarian=L.tileLayer('http://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png',{
     maxZoom: 19,
 });
@@ -44,17 +117,67 @@ var osm=L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
     attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
 });
 osm.addTo(map);
+
+
 var myIcon = L.icon({
     iconUrl: 'img/icon2.png',
-    iconSize:[40,40],
+    iconSize:[45,45],
 });
 
 
-var marker=L.marker([28.3949, 84.1240],{icon: myIcon});
+var marker=L.marker([28.2137, 83.9843],{icon: myIcon});
 marker.addTo(map);
 
-var popup = marker.bindPopup("<div class='grad'> <font color='red'><h1> <b><i>Nepal</h1></b></i></font>"+marker.getLatLng());
+var popup = marker.bindPopup("<div class='grad'> <font color='red'><h1> <b><i>Pokhara</h1></b></i></font>"+marker.getLatLng());
 popup.addTo(map);
+var geojsonMarkerOptions = {
+        radius: 8,
+        color: '#000',
+        weight: 1,
+        opacity: 1,
+        fillOpacity: 0.8
+    }
+    var policestation = L.geoJSON(policestation, {
+        onEachFeature: function (feature, layer) {
+            layer.bindPopup(
+                `<br>` + `<b> amenity:</b>` + feature.properties.amenity +
+                ` <br>` + `<b> barrier:</b>` + feature.properties.barrier +
+                `<br>` + `<b> name:</b>` + feature.properties.name +
+                `<br>` + `<b> office:</b>` + feature.properties.office +
+                `<br>` + `<b> opening_hours:</b>` + feature.properties.opening_hours +
+                `<br>` + `<b> operator:</b>` + feature.properties.operator +
+                `<br>` + `<b> phone:</b>` + feature.properties.phone +
+                `<br>` + `<b> website:</b>` + feature.properties.website
+
+            )
+
+        }, style: {
+            fillColor: 'red',
+            fillOpacity: 1,
+            color: '#0C84E8'
+        },
+        pointToLayer: function (features, latlng) {
+            return L.circleMarker(latlng, geojsonMarkerOptions)
+        }
+    });
+    ///////////////////////////////////////////////store /////////////////
+    var store = L.geoJSON(store, {
+        onEachFeature: function (feature, layer) {
+            layer.bindPopup(
+                `<br>` + `<b> Name:</b>` + feature.properties.Name +
+                ` <br>` + `<b> Store Hours:</b>` + feature.properties.Store_Hours +
+                `<br>` + `<b> Contact Information:</b>` + feature.properties.Contact
+            )
+
+        }, style: {
+            fillColor: 'blue',
+            fillOpacity: 1,
+            color: '#0C84E8'
+        },
+        pointToLayer: function (features, latlng) {
+            return L.circleMarker(latlng, geojsonMarkerOptions)
+        }
+    }).addTo(map);
 
 
 var point=L.geoJSON(point,
@@ -96,13 +219,13 @@ var myIcon1 = L.icon({
 map.on('click', function(e)
 {
     console.log(e);
-    var marker=L.marker([e.latlng.lat,e.latlng.lng],{icon:myIcon1}).addTo(map);
+    var marker=L.marker([e.latlng.lat,e.latlng.lng]).addTo(map);
     L.Routing.control({
   waypoints: [
     L.latLng(27.700027300982768,85.33647892721973),
     L.latLng(e.latlng.lat, e.latlng.lng)
   ]
-}).on('routesfound', function(e)
+})/*.on('routesfound', function(e)
 {
     console.log(e);
     e.routes[0].coordinates.forEach(function(coord,index) {
@@ -110,19 +233,20 @@ map.on('click', function(e)
             marker.setLatLng([coord.lat,coord.lng])
         },5*index);
 })
-})
+})*/
 .addTo(map);
 })
 var baseMaps = {
     "<span style='color: red'>Humanitarian</span>":Humanitarian,
     "<span style='color: blue'>CycleOSM</span>":cycleosm, 
     "<span style='color:green'>OpenStreetMap</span>": osm,
-     
-     
 };
 var overlayMaps={
-    "<font color='rgba(255, 99, 71, 0.4)'>My Office</font>":point
+        "<font color='rgba(255, 99, 71, 0.4)'>PoliceStation</font>": policestation,
+        "<font color='rgba(255, 99, 71, 0.4)'>Store</font>": store
 }
 L.control.layers(baseMaps,overlayMaps,{ collapsed: false}).addTo(map);
-map.removeControl(point);
+map.removeControl(store);
+
+L.control.locate().addTo(map);
 </script>

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hamro Thrift Store</title>
+    <title>College</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
     integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
     crossorigin=""/>
@@ -13,9 +13,9 @@
     <style>
         body{
             padding: 0%;
-margin:0%
+            margin:0%
         }
-        #map { height: 83vh;
+        #map { height: 100vh;
         width: 100%;
     }
     </style>
@@ -24,16 +24,12 @@ margin:0%
     
     <div id="map" style="z-index: 1;"></div>
 </div>
-    <div class="legend">
+    <!-- <div class="legend">
         <h1>Legend:</h1>
-        <div class="legend-item"><span class="legend-color" style="background-color: red;"></span><b>Police Station</b></div>
-        <div class="legend-item "><span class="legend-color" style="background-color: blue; "></span><b>Store</b></div> 
+        <div class="legend-item"><span class="legend-color" style="background-color: red;"></span><b>Bachelor</b></div>
+        <div class="legend-item "><span class="legend-color" style="background-color: blue; "></span><b>Master</b></div> 
     </div>
     
-
-
-
-
     <style>
         .legend {
             background-color: rgba(0, 255, 21, 0.284);
@@ -72,31 +68,37 @@ margin:0%
             margin-right: 5px;
             vertical-align: middle;
         }
-    </style>
+    </style> -->
 </body>
 </html>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
 integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
 crossorigin=""></script>
-<script src="leafletjs'/policestation.js"></script>
-<script src="leafletjs'/store1.js"></script>
+<script src="./shapefile.js"></script>
+<script src="./school.js"></script>
+<script src="./choropleth.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/leaflet.locatecontrol@0.74.0/dist/L.Control.Locate.min.js" charset="utf-8"></script>
 <script src="leaflet-routing-machine-3.2.12/dist/leaflet-routing-machine.min.js"></script>
 <script src="leaflet-search-master\dist\leaflet-search.src.js"></script>
 <script>
     var map = L.map('map').setView([28.2037, 83.9843], 12);
+  
+    
     
 var cycleosm=L.tileLayer('http://{s}.tile-cyclosm.openstreetmap.fr/cyclosm/{z}/{x}/{y}.png', {
 maxZoom: 19,
+opacity: 0.6,
 });
 cycleosm.addTo(map);
 
 var Humanitarian=L.tileLayer('http://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png',{
     maxZoom: 19,
+    opacity: 0.6,
 });
 Humanitarian.addTo(map);
 var osm=L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
     maxZoom: 19,
+    opacity: 0.6,
     attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
 });
 osm.addTo(map);
@@ -106,127 +108,103 @@ var myIcon = L.icon({
     iconUrl: 'img/icon2.png',
     iconSize:[45,45],
 });
+var Icon = L.icon({
+    iconUrl: 'img/school.png',
+    iconSize:[40,40],
+});
 
-
+//adding marker and popup icon
 var marker=L.marker([28.2137, 83.9843],{icon: myIcon});
 marker.addTo(map);
 
 var popup = marker.bindPopup("<div class='grad'> <font color='red'><h1> <b><i>Pokhara</h1></b></i></font>");
 popup.addTo(map);
-var lat,lng;
-if(!navigator.geolocation){
-console.log('Sorry Browswer doesnot support the geoserver');
-}
-else{
-navigator.geolocation.getCurrentPosition(getPosition);
-}
-function getPosition(position)
+var shape = L.geoJSON(shape,{style:{
+    fillColor: 'RGBA(255,255,255,0)',
+    fillOpacity: 0,
+    color: 'blue'
+},}).addTo(map);
+var school=L.geoJSON(school,
 {
- lat=position.coords.latitude;
- lng=position.coords.longitude;
-console.log(lat,lng)
-uselatlng(lat,lng);
+    onEachFeature:function(feature,layer){
+      
+        layer.bindPopup('<b> <i> <font color=brown>'+feature.properties.Name)
+    }, style: {
+    iconUrl: 'img/icon.png'
+},
+     pointToLayer: function (features, latlng) {
+       return L.marker(latlng, {icon: Icon})
 }
-function uselatlng(){ 
-console.log(lat,lng);
+});
+//choropleth map
+//Color defined
+function getColor(d) {
+    return d > 6 ? '#800026' :
+           d > 3 ? '#BD0026' :
+           d > 2 ? '#E31A1C' :
+           d > 0 ? '#FEB24C' :
+                   '#FFEDA0';
 }
-map.on('click', function (e) {
-			console.log(e);
-            
-			var newMarker = L.marker([e.latlng.lat, e.latlng.lng]).addTo(map);
-			L.Routing.control({
-				waypoints: [
-					L.latLng([lat,lng]),
-					L.latLng(e.latlng.lat, e.latlng.lng)
-				]
-            
-			}).addTo(map);
-		}
-        );
-var geojsonMarkerOptions = {
-        radius: 8,
-        color: '#000',
+
+function style(feature) {
+    return {
+        fillColor: getColor(feature.properties.No_of_coll),
         weight: 1,
-        opacity: 1,
-        fillOpacity: 0.8
-    }
+        color: 'black',
+        opacity: 0.6,
+        dashArray: '3',
+        fillOpacity: 0.7
+    };
+}
 
-    var policestation = L.geoJSON(policestation, {
-        onEachFeature: function (feature, layer) {
-            layer.bindPopup(
-                `<br>` + `<b> <font color:'red'>amenity:</font></b>` + feature.properties.amenity +
-                ` <br>` + `<b> barrier:</b>` + feature.properties.barrier +
-                `<br>` + `<b> name:</b>` + feature.properties.name +
-                `<br>` + `<b> office:</b>` + feature.properties.office +
-                `<br>` + `<b> opening_hours:</b>` + feature.properties.opening_hours +
-                `<br>` + `<b> operator:</b>` + feature.properties.operator +
-                `<br>` + `<b> phone:</b>` + feature.properties.phone +
-                `<br>` + `<b> website:</b>` + feature.properties.website
 
-            )
 
-        }, style: {
-            fillColor: 'red',
-            fillOpacity: 1,
-            color: '#0C84E8'
-        },
-        pointToLayer: function (features, latlng) {
-            return L.circleMarker(latlng, geojsonMarkerOptions)
-        }
+// Mouseover event handler
+function highlightFeature(e) {
+    var layer = e.target;
+
+    layer.setStyle({
+        weight: 5,
+        color: '#666',
+        dashArray: '',
+        fillOpacity: 0.7
     });
-    ///////////////////////////////////////////////store /////////////////
-    var store = L.geoJSON(store, {
-        onEachFeature: function (feature, layer) {
-            layer.bindPopup(
-                `<br>` + `<b><span style='color: red'> Name:</b><span style='color: blue'>` + feature.properties.Name +
-                ` <br>` + `<b> <span style='color: red'> Store Hours:</b> ` + feature.properties.Store_hours +
-                `<br>` + `<b><span style='color: red'>  Contact Information:</b>` + feature.properties.Contact +
-                    ` <br>` + `<b> <span style='color: red'> Store Hours:</b> ` + feature.properties.Location
-            )
 
-        }, style: {
-            fillColor: 'blue',
-            fillOpacity: 1,
-            color: '#0C84E8'
-        },
-        pointToLayer: function (features, latlng) {
-            return L.circleMarker(latlng, geojsonMarkerOptions)
-        }
-    }).addTo(map);
+    layer.bringToFront();
+}
 
+// Mouseout event handler
+function resetHighlight(e) {
+    geojson.resetStyle(e.target);
+}
 
+// Function to be executed on each feature
+function onEachFeature(feature, layer) {
+    layer.on({
+        mouseover: highlightFeature,
+        mouseout: resetHighlight
+    });
+}
+
+// Creating GeoJSON layer with style and event handling
+var geojson = L.geoJson(choropleth, {
+    style: style,
+    onEachFeature: onEachFeature
+});
+var choroplethLayer = L.geoJson(choropleth, { style: style, onEachFeature: onEachFeature }).addTo(map);
 var baseMaps = {
     "<span style='color: red'>Humanitarian</span>":Humanitarian,
     "<span style='color: blue'>CycleOSM</span>":cycleosm, 
-    "<span style='color:green'>OpenStreetMap</span>": osm,
+    "<span style='color:green'>OpenStreetMap</span>": osm
 };
 var overlayMaps={
-        "<font color='rgba(255, 99, 71, 0.4)'>PoliceStation</font>": policestation,
-     
-        "<font color='rgba(255, 99, 71, 0.4)'>Store</font>": store
+    "<font color='rgba(255, 99, 71, 0.4)'>Study Area</font>": shape,
+    "<font color='rgba(255, 99, 71, 0.4)'>Schools</font>": school,
+    "<font color='rgba(255, 99, 71, 0.4)'>Colleges in Wards</font>": choroplethLayer 
 }
-L.control.layers(baseMaps,overlayMaps,{ collapsed: false}).addTo(map);
+L.control.layers(baseMaps, overlayMaps, {collapsed: false}).addTo(map);
 
-
-var lc = L.control
-  .locate({
-    position: "topleft",
-    strings: {
-      title: "My Current Location"
-    }
-  })
-  .addTo(map);
-  
-  const searchControl= new L.Control.Search({
-    layer: store,
-    zoom: '15',
-    propertyName: 'Location',
-});
-map.addControl(searchControl);
-map.removeControl(store);
-L.control.scale({
-            metric:true,
-            imperial:true,
-            position:'bottomright'
-        }).addTo(map);
+map.removeControl(shape);
+map.removeControl(school);
+map.removeControl(choroplethLayer);
 </script>
